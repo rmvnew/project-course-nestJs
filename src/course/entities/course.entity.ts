@@ -14,6 +14,7 @@ export class Course {
   @Column({ name: 'course_load' })
   courseLoad: number;
 
+
   @ManyToMany(() => Student, student => student.courses)
   @JoinTable({
     name: 'student_course',
@@ -27,6 +28,7 @@ export class Course {
     }
   })
   students: Student[]
+
 
 }
 

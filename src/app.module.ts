@@ -13,12 +13,14 @@ import { StudentModule } from './student/student.module';
       password: '12345',
       database: 'course',
       entities: ['dist/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false,
     }),
     CourseModule,
     StudentModule,
   ],
-  controllers: [],
+  controllers: [
+
+  ],
   providers: [
 
   ],
