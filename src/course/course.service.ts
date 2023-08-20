@@ -1,11 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { Course } from './entities/course.entity';
 
 @Injectable()
 export class CourseService {
-  create(createCourseDto: CreateCourseDto) {
-    return 'This action adds a new course';
+
+
+  constructor(
+    @InjectRepository(Course)
+    private readonly courseRepository: Repository<Course>
+  ) { }
+
+  async create(createCourseDto: CreateCourseDto) {
+
+    const { courseName } = createCourseDto
+
+    const isRegistered = await this.findByName(courseName.toUpperCase())
+
+    if (isRegistered) {
+      throw new BadRequestException(` 
+      O Curso ${courseName.toUpperCase()} já está registrado!`)
+    }
+
+    const course = this.courseRepository.create(createCourseDto)
+    course.courseName = courseName.toUpperCase()
+
+    return this.courseRepository.save(course)
+  }
+
+  async findByName(name: string): Promise<Course | null> {
+    return this.courseRepository.findOne({
+      where: {
+        courseName: name
+      }
+    })
   }
 
   findAll() {
