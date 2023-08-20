@@ -88,7 +88,16 @@ export class CourseService {
     return this.courseRepository.save(course)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  async remove(id: number) {
+
+    const isRegistered = await this.findById(id)
+
+    if (!isRegistered) {
+      throw new NotFoundException(`O curso com o id ${id} não existe!`)
+    }
+
+    this.courseRepository.delete(isRegistered)
+
+
   }
 }
