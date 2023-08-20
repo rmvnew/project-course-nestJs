@@ -39,12 +39,25 @@ export class CourseService {
     })
   }
 
-  findAll() {
-    return `This action returns all course`;
+  async findAll(name?: string): Promise<Course[]> {
+
+    const queryBuilder = this.courseRepository.createQueryBuilder('course')
+      .leftJoinAndSelect('course.students', 'students')
+
+    if (name) {
+      queryBuilder
+        .where('course.courseName LIKE :name', { name: `%${name}%` })
+    }
+
+    return queryBuilder.getMany()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  async findById(id: number) {
+    return this.courseRepository.findOne({
+      where: {
+        courseId: id
+      }
+    })
   }
 
   update(id: number, updateCourseDto: UpdateCourseDto) {
