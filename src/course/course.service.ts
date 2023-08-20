@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -60,8 +60,32 @@ export class CourseService {
     })
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
+
+    const isRegistered = await this.findById(id)
+
+    if (!isRegistered) {
+      throw new NotFoundException(`O curso com o id ${id} não existe!`)
+    }
+
+    const { courseName, courseLoad } = updateCourseDto
+
+    const course = await this.courseRepository.preload({
+      courseId: id,
+      ...updateCourseDto
+    })
+
+
+    if (courseName) {
+      course.courseName = courseName.toUpperCase()
+    }
+
+    if (courseLoad) {
+      course.courseLoad = courseLoad
+    }
+
+
+    return this.courseRepository.save(course)
   }
 
   remove(id: number) {
