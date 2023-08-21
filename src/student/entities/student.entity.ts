@@ -15,9 +15,10 @@ export class Student {
     studentName: string;
 
     @Column({ name: 'student_enrollment' })
-    studentEnrollmet: number;
+    studentEnrollment: string;
 
-    @ManyToMany(() => Course)
+
+    @ManyToMany(() => Course, course => course.students)
     @JoinTable({
         name: 'student_course',
         joinColumn: {
