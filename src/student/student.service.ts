@@ -56,12 +56,26 @@ export class StudentService {
     })
   }
 
-  findAll() {
-    return `This action returns all student`;
+  async findAll(name?: string): Promise<Student[]> {
+
+    const queryBuilder = this.studentRepository.createQueryBuilder('student')
+      .leftJoinAndSelect('student.courses', 'courses')
+
+    if (name) {
+      queryBuilder
+        .where('student.studentName LIKE :name', { name: `%${name}%` })
+    }
+
+
+    return queryBuilder.getMany()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+  async findById(id: number) {
+    return this.studentRepository.findOne({
+      where: {
+        studentId: id
+      }
+    })
   }
 
   update(id: number, updateStudentDto: UpdateStudentDto) {
