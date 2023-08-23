@@ -78,8 +78,43 @@ export class StudentService {
     })
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
+  async update(id: number, updateStudentDto: UpdateStudentDto): Promise<Student> {
+
+    const { studentName, coursesId } = updateStudentDto
+
+    const isRegistered = await this.findById(id)
+
+    if (!isRegistered) {
+      throw new NotFoundException(`O aluno com id ${id} não existe!`)
+    }
+
+    const student = await this.studentRepository.preload({
+      studentId: id,
+      ...updateStudentDto
+    })
+
+    if (studentName) {
+      student.studentName = studentName.toUpperCase()
+    }
+
+    if (coursesId) {
+
+      let studentCourses = []
+      for (let index of coursesId) {
+        const course = await this.courseService.findById(index)
+        if (!course) {
+          throw new NotFoundException(`O curso com id ${index} não existe!`)
+        }
+        studentCourses.push(course)
+      }
+
+      student.courses = studentCourses
+
+
+    }
+
+
+    return this.studentRepository.save(student)
   }
 
   remove(id: number) {
